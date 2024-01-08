@@ -1,0 +1,21 @@
+== VARIABLE == 
+DBUSER : os user name
+PACKAGE_NAME : package file name
+FILE_NAME : package file name without extension
+EXTENSION : extesion on file name
+INSTALL_DIR : install directory
+
+GOLDILOCKS_USER_ENV : Goldilocks evn file
+GOLDILOCKS_PROPERTY : Goldilocks property file
+GOLDILOCKS_LICENSE : Goldilocks license
+
+TEST_FLAG : test function flag
+PATCH_FLAG : DB patch flag
+
+== FUNCTION == 
+failExit : Exit when package install failed
+packageVerf : verify package file
+installPackage : install package
+checkProfile : check profile directory
+exportEnvVariable_Linux : export evn on linux
+makeSYMLNK : make symbolic link
