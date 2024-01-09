@@ -13,6 +13,7 @@ SYMLNK_PATH=$HOME
 
 FILE_NAME=$(echo "$PACKAGE_NAME" | awk -F/ '{if (NF>1) {print $NF} else {print $0}}' | sed -e 's/.tar.gz$//')
 EXTENSION=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $(NF-1)"."$NF}}')
+PAK_VER_NAME=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $1" "$4"Tag"}}')
 
 ## need to be changed to read function
 INSTALL_DIR=$HOME/product/
@@ -42,8 +43,6 @@ failExit() {
 }
 
 packageVerf() {
-    echo "Package File : $PACKAGE_NAME"
-    echo ""
     # echo "    File Name : $FILE_NAME"
     # echo "    Extension : $EXTENSION"
     if [ ! -f "$PACKAGE_NAME" ]; then
@@ -57,6 +56,13 @@ packageVerf() {
         exit 2
     else
         echo "Start Installation...."
+        echo ""
+        # echo "Package File : $PACKAGE_NAME"
+        ver_Prefix=$(echo $PACKAGE_NAME | grep -oP 'server-\K[^.]*')
+        ver_Suffix=$(echo $PACKAGE_NAME | grep -oP '\.\K\d+(?=-)')
+
+        ver_Result="Goldilocks ${ver_Prefix} ${ver_Suffix}Tag"
+        echo "Package Version : $ver_Result"
         echo ""
     fi
     ## If package name is correct....
@@ -205,8 +211,7 @@ export LD_LIBRARY_PATH=\$GOLDILOCKS_HOME/lib:\$LD_LIBRARY_PATH
 
 makeSymlnk() {
     echo "- Creating Symbolic Link"
-    echo ""
-    echo "    [ Creating 'goldilocks_home' Symbolic Link.... ]"
+    sleep 2
     #### goldilocks_home
     ## Patch flag ON
     if [ $PATCH_FLAG -eq 0 ]; then
@@ -254,7 +259,6 @@ makeSymlnk() {
         fi
     fi
 
-    echo "    [ Creating 'goldilocks_data' Simbolic Link.... ]"
     #### goldilocks_data
     if [ $PATCH_FLAG -eq 0 ]; then
         ## goldilocks_data sim.link not exist && goldilocks_data dir exist
@@ -278,8 +282,14 @@ makeSymlnk() {
         fi
     else
         echo "        'goldilocks_data' does not need patch. Skipping process."
+        # current_Prefix=$(echo $(readlink -f $GOLDILOCKS_DATA) | grep -oP 'server-\K[^.]*')
+        # current_Suffix=$(echo $(readlink -f $GOLDILOCKS_DATA) | grep -oP '\.\K\d+(?=-)')
+
+        # current_Result="Goldilocks ${current_Prefix} ${current_Suffix}Tag"
+        # echo "            Package Version : $current_Result"
+        # echo ""
         echo "            Symbolic Link Directory : $SYMLNK_PATH/goldilocks_data"
-        echo "            Currnet Link Directory : $(readlink -f $GOLDILOCKS_DATA)"
+        echo "            current Link Directory : $(readlink -f $GOLDILOCKS_DATA)"
         echo ""
     fi
 }
