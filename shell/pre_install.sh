@@ -15,9 +15,9 @@ FILE_NAME=$(echo "$PACKAGE_NAME" | awk -F/ '{if (NF>1) {print $NF} else {print $
 EXTENSION=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $(NF-1)"."$NF}}')
 
 ## need to be changed to read function
-INSTALL_DIR=/home/$DBUSER/product/
+INSTALL_DIR=$HOME/product/
 
-PATCH_FLAG=0
+PATCH_FLAG=$2
 
 # DBCREATE_FLAG=1
 
@@ -42,18 +42,18 @@ failExit() {
 }
 
 packageVerf() {
-    echo "Package File : $(basename $FILE_NAME)"
+    echo "Package File : $PACKAGE_NAME"
     echo ""
     # echo "    File Name : $FILE_NAME"
     # echo "    Extension : $EXTENSION"
     if [ ! -f "$PACKAGE_NAME" ]; then
         echo "Package file does not exist."
         echo "Check the file and try again."
-        echo "How to use : $(basename $0) package_name.tar.gz goldilocks.conf license" >&2
+        echo "How to use : $(basename $0) package_name.tar.gz" >&2
         exit 2
     elif [ "$EXTENSION" != "tar.gz" -o -z "$EXTENSION" ]; then
         echo "Invalid package file. Check the package file again."
-        echo "How to use : $(basename $0) package_name.tar.gz goldilocks.conf license" >&2
+        echo "How to use : $(basename $0) package_name.tar.gz" >&2
         exit 2
     else
         echo "Start Installation...."
@@ -88,6 +88,18 @@ checkProfile() {
             PROFILE_PATH="${HOME}/.bash_profile"
         fi
         ;;
+    ### zsh
+    zsh)
+        if [ -f "${HOME}/.bash_profile" ]; then
+            PROFILE_PATH="${HOME}/.bash_profile"
+        elif [ -f "${HOME}/.bash_login" ]; then
+            PROFILE_PATH="${HOME}/.bash_login"
+        elif [ -f "${HOME}/.profile" ]; then
+            PROFILE_PATH="${HOME}/.profile"
+        else
+            PROFILE_PATH="${HOME}/.bash_profile"
+        fi
+        ;;
     ### sh
     sh)
         PROFILE_PATH="${HOME}/.profile"
@@ -106,6 +118,9 @@ checkProfile() {
 installPackage() {
     echo "- Starting package installation..."
     # echo "    Package File : $FILE_NAME"
+    if [ ! -d "${INSTALL_DIR}" ]; then
+        mkdir $INSTALL_DIR
+    fi
     if [ ! -d "${INSTALL_DIR}${FILE_NAME}" ]; then
         tar -zxf $PACKAGE_NAME -C $INSTALL_DIR
         if [ $? -eq 0 ]; then
@@ -119,21 +134,24 @@ installPackage() {
             failExit
         fi
     else
-        echo "    ERROR : '${INSTALL_DIR}${FILE_NAME}' Directory already exists."
+        echo "    ERROR : '${INSTALL_DIR}${FILE_NAME}' Package already exists."
+        echo ""
         failExit
     fi
 }
 
 exportEnvVariable_Linux() {
-
     if [ $PATCH_FLAG = 0 ]; then
         ## CHECK EXSITING ENV
-        if [ -z "$GOLDILOCKS_HOME" -o -z "$GOLCILOCKS_DATA" ]; then
-            echo "Error: Goldilocks Env already set." >&2
-            echo "Did you Install Goldilocks package before?"
+        echo "- Checking Goldilocks Env..."
+        if [ ! -z "$GOLDILOCKS_HOME" -o ! -z "$GOLDILOCKS_DATA" ]; then
+            echo "    Error: Goldilocks Env already exist." >&2
+            echo "    Did you Install Goldilocks package before?"
             echo ""
             failExit
         else
+            echo "   Goldilocks Env is Empty."
+            echo ""
             echo "- Import enviromnet to PROFILE."
             echo "
 
@@ -188,7 +206,7 @@ export LD_LIBRARY_PATH=\$GOLDILOCKS_HOME/lib:\$LD_LIBRARY_PATH
 makeSymlnk() {
     echo "- Creating Symbolic Link"
     echo ""
-    echo "    [ Creating goldilocks_home Symbolic Link.... ]"
+    echo "    [ Creating 'goldilocks_home' Symbolic Link.... ]"
     #### goldilocks_home
     ## Patch flag ON
     if [ $PATCH_FLAG -eq 0 ]; then
@@ -196,7 +214,8 @@ makeSymlnk() {
         if [ ! -d ${SYMLNK_PATH}/goldilocks_home -a -d ${INSTALL_DIR}${FILE_NAME}/goldilocks_home ]; then
             ln -s ${INSTALL_DIR}${FILE_NAME}/goldilocks_home ${SYMLNK_PATH}/goldilocks_home
             if [ $? -eq 0 ]; then
-                echo "        goldilocks_home Symbolic Link Created."
+                echo "        'goldilocks_home' Symbolic Link Created."
+                echo "            Symbolic Link Directory : $SYMLNK_PATH/goldilocks_home"
                 echo "            Link Directory : ${INSTALL_DIR}${FILE_NAME}/goldilocks_home"
                 echo ""
                 sleep 2
@@ -205,7 +224,7 @@ makeSymlnk() {
                 failExit
             fi
         else
-            echo "        error : goldilocks_home Sysmbolic Link already exsist."
+            echo "        error : 'goldilocks_home' Sysmbolic Link already exsist."
             echo "        DB Patch Disabled."
             echo ""
             failExit
@@ -215,14 +234,16 @@ makeSymlnk() {
     else
         ## goldilocks_home sim.link not exist && goldilocks_home dir exist
         if [ ! -d ${SYMLNK_PATH}/goldilocks_home -a -d ${INSTALL_DIR}${FILE_NAME}/goldilocks_home ]; then
-            echo "        error : goldilocks_home Symbolic Link dose not exist."
-            echo "        DB Patch Disabled."
+            echo "        error : 'goldilocks_home' Symbolic Link dose not exist."
+            echo "        Goldilocks package should already exist for the patch."
+            echo "        Goldilocks Patch Failed."
             echo ""
             failExit
         else
             ln -Tfs ${INSTALL_DIR}${FILE_NAME}/goldilocks_home ${SYMLNK_PATH}/goldilocks_home
             if [ $? -eq 0 ]; then
-                echo "        goldilocks_home Patch Done."
+                echo "        'goldilocks_home' Patch Done."
+                echo "            Symbolic Link Directory : $SYMLNK_PATH/goldilocks_home"
                 echo "            Link Directory : ${INSTALL_DIR}${FILE_NAME}/goldilocks_home"
                 echo ""
                 sleep 2
@@ -233,14 +254,15 @@ makeSymlnk() {
         fi
     fi
 
-    echo "    [ Creating goldilocks_data Simbolic Link.... ]"
+    echo "    [ Creating 'goldilocks_data' Simbolic Link.... ]"
     #### goldilocks_data
     if [ $PATCH_FLAG -eq 0 ]; then
         ## goldilocks_data sim.link not exist && goldilocks_data dir exist
         if [ ! -d ${SYMLNK_PATH}/goldilocks_data -a -d ${INSTALL_DIR}${FILE_NAME}/goldilocks_data ]; then
             ln -s ${INSTALL_DIR}${FILE_NAME}/goldilocks_data ${SYMLNK_PATH}/goldilocks_data
             if [ $? -eq 0 ]; then
-                echo "        goldilocks_data Symbolic Link Created."
+                echo "        'goldilocks_data' Symbolic Link Created."
+                echo "            Symbolic Link Directory : $SYMLNK_PATH/goldilocks_data"
                 echo "            Link Directory : ${INSTALL_DIR}${FILE_NAME}/goldilocks_data"
                 echo ""
                 sleep 2
@@ -249,26 +271,16 @@ makeSymlnk() {
                 failExit
             fi
         else
-            echo "        error : goldilocks_data Symbolic Link already exsist."
+            echo "        error : 'goldilocks_data' Symbolic Link already exsist."
             echo "        DB Patch Disabled."
             echo ""
             failExit
         fi
     else
-        echo "        goldilocks_data does not need patch. Skipping process."
-    fi
-}
-
-addLicense() {
-    if [ -f "$LICN_FILE" ]; then
-        echo license >$GOLDILOCKS_LICENSE
-        echo "- License added succesfully."
+        echo "        'goldilocks_data' does not need patch. Skipping process."
+        echo "            Symbolic Link Directory : $SYMLNK_PATH/goldilocks_data"
+        echo "            Currnet Link Directory : $(readlink -f $GOLDILOCKS_DATA)"
         echo ""
-        sleep 2
-    else
-        echo "- License add failed."
-        echo ""
-        failExit
     fi
 }
 
@@ -297,11 +309,6 @@ if [ $TEST_FLAG -eq 1 ]; then
     packageVerf
 fi
 
-### CREATE PACKAGE DIRECTORY
-if [ $TEST_FLAG -eq 1 ]; then
-    installPackage
-fi
-
 ### SPECIFY PROFILE LOCATION
 if [ $TEST_FLAG -eq 1 ]; then
     checkProfile
@@ -312,17 +319,30 @@ if [ $TEST_FLAG -eq 1 ]; then
     exportEnvVariable_Linux
 fi
 
+### CREATE PACKAGE DIRECTORY
+if [ $TEST_FLAG -eq 1 ]; then
+    installPackage
+fi
+
 ### CREATE SYMBOLIC LINK
 if [ $TEST_FLAG -eq 1 ]; then
     makeSymlnk
 fi
 
-echo "+---------------------------------------------------------------+"
-echo "¦ Goldilocks package installation finished.                     ¦"
-echo "¦                                                               ¦"
-echo "¦ !!!!!!! Attention !!!!!!!!                                    ¦"
-echo "¦  You are now required to either re-login to your session      ¦"
-echo "¦    or export the environment from the profile.                ¦"
-echo "¦ - Example) source ~/.bash_profile                             ¦"
-echo "+---------------------------------------------------------------+"
-echo ""
+### PROCESS DONE
+if [ $PATCH_FLAG = 1 ]; then
+    echo "+--------------------------------------------------------+"
+    echo "¦ Goldilocks package patch finished.                     ¦"
+    echo "+--------------------------------------------------------+"
+    echo ""
+else
+    echo "+---------------------------------------------------------------+"
+    echo "¦ Goldilocks package installation finished.                     ¦"
+    echo "¦                                                               ¦"
+    echo "¦ !!!!!!! Attention !!!!!!!!                                    ¦"
+    echo "¦  You are now required to either re-login to your session      ¦"
+    echo "¦    or export the environment from the profile.                ¦"
+    echo "¦ - Example) source ~/.bash_profile                             ¦"
+    echo "+---------------------------------------------------------------+"
+    echo ""
+fi
