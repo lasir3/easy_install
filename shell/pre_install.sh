@@ -57,16 +57,6 @@ packageVerf() {
         echo "Invalid package file. Check the package file again."
         echo "How to use : $(basename $0) package_name.tar.gz goldilocks.conf license" >&2
         exit 2
-    elif [ ! -f "$CONF_FILE" ]; then
-        echo "Config file does not exist."
-        echo "Check the file and try again."
-        echo "How to use : $(basename $0) package_name.tar.gz goldilocks.conf license" >&2
-        exit 2
-    elif [ ! -f "$LICN_FILE" ]; then
-        echo "License file does not exist."
-        echo "Check the file and try again."
-        echo "How to use : $(basename $0) package_name.tar.gz goldilocks.conf license" >&2
-        exit 2
     else
         echo "Start Installation...."
         echo ""
