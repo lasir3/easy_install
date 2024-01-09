@@ -43,8 +43,6 @@ failExit() {
 
 packageVerf() {
     echo "Package File : $(basename $FILE_NAME)"
-    echo "Config File : $(basename $CONF_FILE)"
-    echo "License File : $(basename $LICN_FILE)"
     echo ""
     # echo "    File Name : $FILE_NAME"
     # echo "    Extension : $EXTENSION"
@@ -70,7 +68,7 @@ packageVerf() {
         sleep 2
         echo ""
     else
-        echo "    Invalid package file. Check the package file again."  >&2
+        echo "    Invalid package file. Check the package file again." >&2
         failExit
     fi
 }
@@ -127,26 +125,17 @@ installPackage() {
 }
 
 exportEnvVariable_Linux() {
-    # ### CREATE ENV FILE
-    # if [ ! -f "$GOLDILOCKS_USER_ENV" ]; then
-    #     touch $GOLDILOCKS_USER_ENV 2>&1
-    #     if [ $? -eq 0 ]; then
-    #         echo "Created ENV file."
-    #         echo ""
-    #     else
-    #         echo "EVN file create failed."
-    #         echo ""
-    #         failExit
-    #     fi
-    # fi
 
-    ### IMPORT ENV VARIABLES
-    ############################################################
-    # set Linux Env into ${INSTALL_DIR}/conf/.goldilocks.user.env
-    ############################################################
-
-    echo "- Import enviromnet to PROFILE."
-    echo "
+    if [ $PATCH_FLAG = 0 ]; then
+        ## CHECK EXSITING ENV
+        if [ -z "$GOLDILOCKS_HOME" -o -z "$GOLCILOCKS_DATA" ]; then
+            echo "Error: Goldilocks Env already set." >&2
+            echo "Did you Install Goldilocks package before?"
+            echo ""
+            failExit
+        else
+            echo "- Import enviromnet to PROFILE."
+            echo "
 
 ###### GOLDILCOKS ENV START ######
 
@@ -158,31 +147,31 @@ export LD_LIBRARY_PATH=\$GOLDILOCKS_HOME/lib:\$LD_LIBRARY_PATH
 ###### GOLDILCOKS ENV END ######
 
         " >>$PROFILE_PATH
-    if [ $? -eq 0 ]; then
-        echo "    Import environment to PROFILE_PATH successfully."
-        echo ""
-        sleep 2
-    else
-        echo "    Import environment Failed."
-        echo ""
-        failExit
-    fi
-    echo "- Applying evnromnet file."
-    source $PROFILE_PATH
+            if [ $? -eq 0 ]; then
+                echo "    Import environment to PROFILE_PATH successfully."
+                echo ""
+                sleep 2
+            else
+                echo "    Import environment Failed."
+                echo ""
+                failExit
+            fi
+            echo "- Applying evnromnet file."
+            source $PROFILE_PATH
 
-    # echo $GOLDILOCKS_DATA
-    # echo $GOLDILOCKS_HOME
-    if [ $? -eq 0 ]; then
-        echo "    Apply success."
-        echo ""
-        sleep 2
-    else
-        echo "    Apply fail."
-        echo ""
-        failExit
-    fi
+            # echo $GOLDILOCKS_DATA
+            # echo $GOLDILOCKS_HOME
+            if [ $? -eq 0 ]; then
+                echo "    Apply success."
+                echo ""
+                sleep 2
+            else
+                echo "    Apply fail."
+                echo ""
+                failExit
+            fi
 
-    echo "    [ Linux Env. ]
+            echo "    [ Linux Env. ]
  	Target : $PROFILE_PATH
 
  	    GOLDILOCKS_HOME : $GOLDILOCKS_HOME
@@ -190,7 +179,10 @@ export LD_LIBRARY_PATH=\$GOLDILOCKS_HOME/lib:\$LD_LIBRARY_PATH
  	    PATH            : $PATH
  	    LD_LIBRARY_PATH : $LD_LIBRARY_PATH
     "
-    sleep 2
+            sleep 2
+        fi
+    fi
+
 }
 
 makeSymlnk() {
