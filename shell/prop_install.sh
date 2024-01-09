@@ -32,7 +32,7 @@ addProperty() {
     if [ ! -f "$CONF_FILE" ]; then
         echo "config file does not exist."
         echo "Check the file and try again."
-        echo "How to use : $(basename $0) package_name.tar.gz goldilocks.conf license" >&2
+        echo "How to use : $(basename $0) goldilocks.conf" >&2
         failExit
     else
         echo "- Copy Config File."
