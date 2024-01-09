@@ -158,12 +158,15 @@ exportEnvVariable_Linux() {
     echo "- Import enviromnet to PROFILE."
     echo "
 
-###### GOLDILCOKS ENV ######
+###### GOLDILCOKS ENV START ######
 
 export GOLDILOCKS_HOME=\$HOME/goldilocks_home
 export GOLDILOCKS_DATA=\$HOME/goldilocks_data
 export PATH=\$GOLDILOCKS_HOME/bin:\$PATH
 export LD_LIBRARY_PATH=\$GOLDILOCKS_HOME/lib:\$LD_LIBRARY_PATH
+
+###### GOLDILCOKS ENV END ######
+
         " >>$PROFILE_PATH
     if [ $? -eq 0 ]; then
         echo "    Import environment to PROFILE_PATH successfully."
