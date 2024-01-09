@@ -7,8 +7,6 @@ SYSTEM=$(uname)
 DBUSER=$(whoami)
 
 PACKAGE_NAME=$1
-CONF_FILE=$2
-LICN_FILE=$3
 
 ## need to be changed to read function
 SYMLNK_PATH=$HOME
@@ -24,8 +22,12 @@ PATCH_FLAG=0
 # DBCREATE_FLAG=1
 
 # GOLDILOCKS_USER_ENV=${INSTALL_DIR}/goldilocks_data/conf/.goldilocks.user.env
-GOLDILOCKS_PROPERTY=${INSTALL_DIR}${FILE_NAME}/goldilocks_data/conf/goldilocks.property.conf
-GOLDILOCKS_LICENSE=${INSTALL_DIR}${FILE_NAME}/goldilocks_home/license/license
+
+# moved to conf_install.sh
+# GOLDILOCKS_PROPERTY=${INSTALL_DIR}${FILE_NAME}/goldilocks_data/conf/goldilocks.property.conf
+
+# moved to licn_install.sh
+# GOLDILOCKS_LICENSE=${INSTALL_DIR}${FILE_NAME}/goldilocks_home/license/license
 
 ###########################
 ######## Functions ########
@@ -78,8 +80,8 @@ packageVerf() {
         sleep 2
         echo ""
     else
-        echo "    Invalid package file. Check the package file again."
-        exit 2
+        echo "    Invalid package file. Check the package file again."  >&2
+        failExit
     fi
 }
 
@@ -272,16 +274,6 @@ makeSymlnk() {
     fi
 }
 
-addProperty() {
-    echo "- Copy Config File."
-    cp $GOLDILOCKS_DATA/conf/goldilocks.properties.conf $GOLDILOCKS_DATA/conf/goldilocks.properties.conf.bak_$(date +%Y%m%d%H%M%S)
-    yes | cp -rf $CONF_FILE $GOLDILOCKS_DATA/conf/goldilocks.properties.conf
-    if [ $? -eq 0 ]; then
-        echo "    property imported succesfully."
-        echo ""
-    fi
-}
-
 addLicense() {
     if [ -f "$LICN_FILE" ]; then
         echo license >$GOLDILOCKS_LICENSE
@@ -338,16 +330,6 @@ fi
 ### CREATE SYMBOLIC LINK
 if [ $TEST_FLAG -eq 1 ]; then
     makeSymlnk
-fi
-
-### ADD PROPERTY
-if [ $TEST_FLAG -eq 1 ]; then
-    addProperty
-fi
-
-### ADD LICENSE
-if [ $TEST_FLAG -eq 1 ]; then
-    addLicense
 fi
 
 echo "+---------------------------------------------------------------+"
