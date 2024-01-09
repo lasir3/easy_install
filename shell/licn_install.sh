@@ -20,6 +20,8 @@ failExit() {
 envCheck(){
     if [ -z "$GOLDILOCKS_HOME" ]; then
         echo "Error: $GOLDILOCKS_HOME env is not set." >&2
+        echo "Did you Install Goldilocks package?"
+        echo ""
         failExit
     fi
 }
@@ -38,13 +40,16 @@ addProperty() {
         sleep 2
     fi
 }
+### CHECK ENV
+envCheck
+
 
 ### ADD LICENSE
 if [ $TEST_FLAG -eq 1 ]; then
     addLicense
 fi
 
-echo "+-------------------------------------------+"
-echo "¦ Goldilocks config installation finished.  ¦"
-echo "+-------------------------------------------+"
+echo "+--------------------------------------------+"
+echo "¦ Goldilocks license installation finished.  ¦"
+echo "+--------------------------------------------+"
 echo ""
