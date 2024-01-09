@@ -27,6 +27,7 @@ envCheck(){
 }
 
 addProperty() {
+    echo "Package File : $CONF_FILE"
     ## if CONF_FILE don't exist
     if [ ! -f "$CONF_FILE" ]; then
         echo "config file does not exist."

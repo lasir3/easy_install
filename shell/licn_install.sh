@@ -27,6 +27,7 @@ envCheck(){
 }
 
 addProperty() {
+    echo "License File : $LICN_FILE"
     ## if LICN_FILE don't exist
     if [ ! -f "$LICN_FILE" ]; then
         echo "License file does not exist."
