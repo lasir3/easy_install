@@ -1,4 +1,44 @@
 #!/bin/bash
+
+################################
+######### SHELL START ##########
+################################
+echo "+-----------------------------------+"
+echo "¦ Goldilocks Package Install Shell. ¦"
+echo "+-----------------------------------+"
+echo ""
+
+echo "1. Install New Package"
+echo "2. Patch Database"
+read -p "Choose the number (1-2): " choice
+
+case $choice in
+1)
+    echo "Install New Package."
+    echo ""
+    read -p "Package Dir : " PACKAGE_NAME
+    read -p "Install Dir : " INSTALL_DIR
+    echo "Package Dir : $PACKAGE_NAME"
+    echo "Install Dir : $INSTALL_DIR"
+    PATCH_FLAG=0
+    break
+    ;;
+2)
+    echo "Patch Database"
+    echo ""
+    read -p "Package Dir : " PACKAGE_NAME
+    read -p "Install Dir : " INSTALL_DIR
+    echo "Package Dir : $PACKAGE_NAME"
+    echo "Install Dir : $INSTALL_DIR"
+    PATCH_FLAG=1
+    break
+    ;;
+*)
+    echo "Wrong number. Choose the correct number again."
+    exit
+    ;;
+esac
+
 TEST_FLAG=1
 
 CHECK_SHELL=$(echo $SHELL | awk -F'/' '{print $NF}')
@@ -6,29 +46,12 @@ SYSTEM=$(uname)
 
 DBUSER=$(whoami)
 
-PACKAGE_NAME=$1
-
 ## need to be changed to read function
 SYMLNK_PATH=$HOME
 
 FILE_NAME=$(echo "$PACKAGE_NAME" | awk -F/ '{if (NF>1) {print $NF} else {print $0}}' | sed -e 's/.tar.gz$//')
 EXTENSION=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $(NF-1)"."$NF}}')
 PAK_VER_NAME=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $1" "$4"Tag"}}')
-
-## need to be changed to read function
-INSTALL_DIR=$HOME/product/
-
-PATCH_FLAG=$2
-
-# DBCREATE_FLAG=1
-
-# GOLDILOCKS_USER_ENV=${INSTALL_DIR}/goldilocks_data/conf/.goldilocks.user.env
-
-# moved to conf_install.sh
-# GOLDILOCKS_PROPERTY=${INSTALL_DIR}${FILE_NAME}/goldilocks_data/conf/goldilocks.property.conf
-
-# moved to licn_install.sh
-# GOLDILOCKS_LICENSE=${INSTALL_DIR}${FILE_NAME}/goldilocks_home/license/license
 
 ###########################
 ######## Functions ########
@@ -45,14 +68,14 @@ failExit() {
 packageVerf() {
     # echo "    File Name : $FILE_NAME"
     # echo "    Extension : $EXTENSION"
-    if [ ! -f "$PACKAGE_NAME" ]; then
+    if [ ! -f "${PACKAGE_NAME}" ]; then
         echo "Package file does not exist."
         echo "Check the file and try again."
-        echo "How to use : $(basename $0) package_name.tar.gz" >&2
+        # echo "How to use : $(basename $0) package_name.tar.gz" >&2
         exit 2
     elif [ "$EXTENSION" != "tar.gz" -o -z "$EXTENSION" ]; then
         echo "Invalid package file. Check the package file again."
-        echo "How to use : $(basename $0) package_name.tar.gz" >&2
+        # echo "How to use : $(basename $0) package_name.tar.gz" >&2
         exit 2
     else
         echo "Start Installation...."
@@ -297,14 +320,6 @@ makeSymlnk() {
 #################################
 ######### FUNCTION END ##########
 #################################
-
-################################
-######### SHELL START ##########
-################################
-echo "+----------------------------------+"
-echo "¦ Goldilocks package installation. ¦"
-echo "+----------------------------------+"
-echo ""
 
 ################################
 ### FAIL TEST
