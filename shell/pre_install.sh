@@ -1,44 +1,5 @@
 #!/bin/bash
 
-################################
-######### SHELL START ##########
-################################
-echo "+-----------------------------------+"
-echo "¦ Goldilocks Package Install Shell. ¦"
-echo "+-----------------------------------+"
-echo ""
-
-echo "1. Install New Package"
-echo "2. Patch Database"
-read -p "Choose the number (1-2): " choice
-
-case $choice in
-1)
-    echo "Install New Package."
-    echo ""
-    read -p "Package Dir : " PACKAGE_NAME
-    read -p "Install Dir : " INSTALL_DIR
-    echo "Package Dir : $PACKAGE_NAME"
-    echo "Install Dir : $INSTALL_DIR"
-    PATCH_FLAG=0
-    break
-    ;;
-2)
-    echo "Patch Database"
-    echo ""
-    read -p "Package Dir : " PACKAGE_NAME
-    read -p "Install Dir : " INSTALL_DIR
-    echo "Package Dir : $PACKAGE_NAME"
-    echo "Install Dir : $INSTALL_DIR"
-    PATCH_FLAG=1
-    break
-    ;;
-*)
-    echo "Wrong number. Choose the correct number again."
-    exit
-    ;;
-esac
-
 TEST_FLAG=1
 
 CHECK_SHELL=$(echo $SHELL | awk -F'/' '{print $NF}')
@@ -48,10 +9,6 @@ DBUSER=$(whoami)
 
 ## need to be changed to read function
 SYMLNK_PATH=$HOME
-
-FILE_NAME=$(echo "$PACKAGE_NAME" | awk -F/ '{if (NF>1) {print $NF} else {print $0}}' | sed -e 's/.tar.gz$//')
-EXTENSION=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $(NF-1)"."$NF}}')
-PAK_VER_NAME=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $1" "$4"Tag"}}')
 
 ###########################
 ######## Functions ########
@@ -66,11 +23,16 @@ failExit() {
 }
 
 packageVerf() {
+    FILE_NAME=$(echo "$PACKAGE_NAME" | awk -F/ '{if (NF>1) {print $NF} else {print $0}}' | sed -e 's/.tar.gz$//')
+    EXTENSION=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $(NF-1)"."$NF}}')
+    PAK_VER_NAME=$(echo "$PACKAGE_NAME" | awk -F. '{if (NF>1) {print $1" "$4"Tag"}}')
+
     # echo "    File Name : $FILE_NAME"
     # echo "    Extension : $EXTENSION"
     if [ ! -f "${PACKAGE_NAME}" ]; then
         echo "Package file does not exist."
         echo "Check the file and try again."
+        echo ""
         # echo "How to use : $(basename $0) package_name.tar.gz" >&2
         exit 2
     elif [ "$EXTENSION" != "tar.gz" -o -z "$EXTENSION" ]; then
@@ -78,7 +40,9 @@ packageVerf() {
         # echo "How to use : $(basename $0) package_name.tar.gz" >&2
         exit 2
     else
-        echo "Start Installation...."
+        echo "###########################"
+        echo "## Start Installation... ##"
+        echo "###########################"
         echo ""
         # echo "Package File : $PACKAGE_NAME"
         ver_Prefix=$(echo $PACKAGE_NAME | grep -oP 'server-\K[^.]*')
@@ -321,6 +285,77 @@ makeSymlnk() {
 ######### FUNCTION END ##########
 #################################
 
+
+
+
+################################
+######### SHELL START ##########
+################################
+echo "+-----------------------------------+"
+echo "¦ Goldilocks Package Install Shell. ¦"
+echo "+-----------------------------------+"
+echo ""
+
+while true; do
+    echo "1. Install New Package"
+    echo "2. Patch Database"
+    read -p "Choose the number (1-2): " choice
+
+    case $choice in
+    1)
+        echo "- Selected Install New Package."
+        echo ""
+        read -p "Where is Package File Directory? : " PACKAGE_NAME
+        read -p "Where do you want to Install? : " INSTALL_DIR
+        echo ""
+        echo "Package File Directory : $PACKAGE_NAME"
+        echo "Install Directory : $INSTALL_DIR"
+        echo ""
+        read -p "Are you sure? (y/n) : " answer
+        echo ""
+        if [ "$answer" == "Y" ] || [ "$answer" == "y" ]; then
+            PATCH_FLAG=0
+            break
+        elif [ "$answer" == "N" ] || [ "$answer" == "n" ]; then
+            echo "Installation Canceled."
+            echo ""
+            exit
+        else
+            echo "Please choose 'y' or 'n'."
+            echo "" 
+        fi
+        ;;
+    2)
+        echo "- Selected Patch Database."
+        echo ""
+        read -p "Where is Package File Directory? : " PACKAGE_NAME
+        read -p "Where do you want to Install? : " INSTALL_DIR
+        echo ""
+        echo "Package File Directory : $PACKAGE_NAME"
+        echo "Install Directory : $INSTALL_DIR"
+        echo ""
+        read -p "Are you sure? (y/n) : " answer
+        echo ""
+        if [ "$answer" == "Y" ] || [ "$answer" == "y" ]; then
+            PATCH_FLAG=1
+            break
+        elif [ "$answer" == "N" ] || [ "$answer" == "n" ]; then
+            echo "Installation Canceled."
+            echo ""
+            exit
+        else
+            echo "Please choose 'y' or 'n'."
+            echo "" 
+        fi
+        ;;
+    *)
+        echo "- Wrong number. Choose the correct number again."
+        echo ""
+        ;;
+    esac
+done
+
+
 ################################
 ### FAIL TEST
 ################################
@@ -328,6 +363,8 @@ if [ $TEST_FLAG -eq 0 ]; then
     failExit
 fi
 ################################
+################################
+
 
 ### PACKAGE FILE VERIFICATION
 if [ $TEST_FLAG -eq 1 ]; then
@@ -371,3 +408,6 @@ else
     echo "+---------------------------------------------------------------+"
     echo ""
 fi
+##############################
+######### SHELL END ##########
+##############################
